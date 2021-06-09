@@ -1,0 +1,1 @@
+Brazilian Fund Scrapper (or brfunds) is a package to recover data from investment funds without the need to download data to your computer. It uses the data available on https://comparadordefundos.com.br/ and can be used to Time Series Analysis of quote price, fund patrimony and number of quote holders. It can also be used for comparing rentability of different funds.
