@@ -67,7 +67,7 @@ def getFund(fundName, benchmark = None,type = None, period = None, start = None,
         final['Total Variation'] = final['Value']/final['Value'][0] - 1
     return final
 
-def getFunds(fundList, type = None, period = None, start = None, end = None):
+def getFunds(fundList, type = None, period = None, start = None, end = None, simplifiedName = False):
     """fundList: List with the strings of the fund names.
     type: Type of the investment, usually work as default. Accept values: 'acao', 'fixa', 'cambial' or 'multi'. 
     period: Time Analysis, None return all data, Accept Values: '1w', '2w','1m','2m','3m','6m','1y','2y','3y', '4y', '5y'.
@@ -77,6 +77,9 @@ def getFunds(fundList, type = None, period = None, start = None, end = None):
     listFinal = {}
     for fundName in fundList:
         name = __nameTreatment(fundName)
+        if simplifiedName:
+            fundName = fundName.upper()
+            fundName = fundName.split('FUNDO',1)[0]
 
         if (type == None):
             type = 'acao'
