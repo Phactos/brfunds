@@ -1,5 +1,6 @@
-from typing import Optional, Union
+from typing import Optional, Union, List, Tuple, Dict
 
+import time
 import json
 import requests
 import datetime
@@ -15,8 +16,8 @@ FUND_OBSERVATIONS = 'r'
 
 OBS_DATE = 'd'
 OBS_VALUE = 'q'
-OBS_PATRIMONY = 'nw'
-OBS_SHAREHOLDER = 'qh'
+OBS_NET_ASSETS = 'nw'
+OBS_SHAREHOLDERS = 'qh'
 
 
 def getFund(fundName: str, benchmark: str = None, type_: str = None, period: str = None,
@@ -45,19 +46,51 @@ def getFund(fundName: str, benchmark: str = None, type_: str = None, period: str
 
     """
 
-    name, type_, start, end = __paramTreatment(fundName, type_, start, end, period)
+    name = __nameTreatment(fundName)
 
-    data = __getData(name, type_)
-    fund = data['props']['pageProps']['fund']
+    if type_ is None:
+        type_ = 'acao'
 
-    value, date, netAssets, shareholders = __extractDataColumns(fund, start, end)
+    if isinstance(end, str):
+        end = datetime.datetime.strptime(end, '%d/%m/%y').date()
+    if isinstance(start, str):
+        start = datetime.datetime.strptime(start, '%d/%m/%y').date()
+
+    end = __endTreatment(end, start, period)
+    start = __startTreatment(start, end, period)
+
+    # try to get the data 5 times before quitting
+    for _ in range(5):
+        try:
+            data = __getData(name, type_)
+            fund = data['props']['pageProps']['fund']
+            break
+        except KeyError:
+            time.sleep(1)
+            continue
+    else:
+        raise ConnectionError("Could not load funds from page")
+
+    value = []
+    date = []
+    netAssets = []
+    shareholders = []
+
+    fund_observations = fund[FUND_OBSERVATIONS]
+    for observation in fund_observations:
+        tempDate = datetime.datetime.strptime(observation[OBS_DATE], '%Y-%m-%d').date()
+        if start <= tempDate <= end:
+            date.append(tempDate)
+            value.append(observation[OBS_VALUE])
+            netAssets.append(observation[OBS_NET_ASSETS])
+            shareholders.append(observation[OBS_SHAREHOLDERS])
 
     finalDict = {
         'Date': np.array(date),
         'Value': np.array(value)
     }
     if fullData:
-        finalDict['Net Asssets'] = np.array(netAssets)
+        finalDict['Net Assets'] = np.array(netAssets)
         finalDict['# of Shareholders'] = np.array(shareholders)
 
     final = pd.DataFrame(finalDict)
@@ -72,7 +105,7 @@ def getFund(fundName: str, benchmark: str = None, type_: str = None, period: str
     return final
 
 
-def get_funds(fundList: list[str], type_: str = None, period: str = None,
+def get_funds(fundList: List[str], type_: str = None, period: str = None,
               start: Union[str, datetime.date] = None, end: Union[str, datetime.date] = None):
     """
     Params:
@@ -87,12 +120,40 @@ def get_funds(fundList: list[str], type_: str = None, period: str = None,
 
     listFinalDict = {}
     for fundName in fundList:
-        name, type_, start, end = __paramTreatment(fundName, type_, start, end, period)
+        name = __nameTreatment(fundName)
 
-        data = __getData(name, type_)
-        fund = data['props']['pageProps']['fund']
+        if type_ is None:
+            type_ = 'acao'
 
-        value, date, _, _ = __extractDataColumns(fund, start, end)
+        if isinstance(end, str):
+            end = datetime.datetime.strptime(end, '%d/%m/%y').date()
+        if isinstance(start, str):
+            start = datetime.datetime.strptime(start, '%d/%m/%y').date()
+
+        end = __endTreatment(end, start, period)
+        start = __startTreatment(start, end, period)
+
+        # try to get the data 5 times before quitting
+        for _ in range(5):
+            try:
+                data = __getData(name, type_)
+                fund = data['props']['pageProps']['fund']
+                break
+            except KeyError:
+                time.sleep(1)
+                continue
+        else:
+            raise ConnectionError("Could not load funds from page")
+
+        value = []
+        date = []
+
+        fund_observations = fund[FUND_OBSERVATIONS]
+        for observation in fund_observations:
+            tempDate = datetime.datetime.strptime(observation[OBS_DATE], '%Y-%m-%d').date()
+            if start <= tempDate <= end:
+                date.append(tempDate)
+                value.append(observation[OBS_VALUE])
 
         finalDict = {
             'Date': np.array(date),
@@ -106,44 +167,6 @@ def get_funds(fundList: list[str], type_: str = None, period: str = None,
 
     listFinal = pd.DataFrame(listFinalDict)
     return listFinal
-
-
-def __extractDataColumns(fund: dict, start: datetime.date, end: datetime.date) -> \
-        tuple[list, list, list, list]:
-    value = []
-    date = []
-    patrimony = []
-    shareholders = []
-
-    fund_observations = fund[FUND_OBSERVATIONS]
-    for observation in fund_observations:
-        tempDate = datetime.datetime.strptime(observation[OBS_DATE], '%Y-%m-%d').date()
-        if start <= tempDate <= end:
-            date.append(tempDate)
-            value.append(observation[OBS_VALUE])
-            patrimony.append(observation[OBS_PATRIMONY])
-            shareholders.append(observation[OBS_SHAREHOLDER])
-
-    return value, date, patrimony, shareholders
-
-
-def __paramTreatment(fundName: str, type_: str,
-                     start: Union[str, datetime.date], end: Union[str, datetime.date],
-                     period: Optional[str]) -> tuple[str, str, datetime.date, datetime.date]:
-    name = __nameTreatment(fundName)
-
-    if type_ is None:
-        type_ = 'acao'
-
-    if isinstance(end, str):
-        end = datetime.datetime.strptime(end, '%d/%m/%y').date()
-    if isinstance(start, str):
-        start = datetime.datetime.strptime(start, '%d/%m/%y').date()
-
-    end = __endTreatment(end, start, period)
-    start = __startTreatment(start, end, period)
-
-    return name, type_, start, end
 
 
 def __nameTreatment(name):
@@ -188,6 +211,7 @@ def __getData(name, type_):
                    'cambial': 'fundos-cambial',
                    'multi': 'fundos-multimercado'}
     url = f"https://www.comparadordefundos.com.br/fundos-de-investimento/{typeOptions[type_]}/{name}?period=otimo"
+
     page = requests.get(url)
     content = page.content
     soup = BeautifulSoup(content, 'html.parser')
