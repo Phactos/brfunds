@@ -12,7 +12,7 @@ import pandas as pd
 
 pd.options.mode.chained_assignment = None
 
-FUND_OBSERVATIONS = 'r'
+OBS = 'r'
 
 OBS_DATE = 'd'
 OBS_VALUE = 'q'
@@ -69,14 +69,15 @@ def getFund(fundName: str, benchmark: str = None, type_: str = None, period: str
             time.sleep(1)
             continue
     else:
-        raise ConnectionError("Could not load funds from page")
+        print('Check CVM (http://sistemas.cvm.gov.br/fundos.asp) or Comparador de Fundos (https://www.comparadordefundos.com.br/fundos-de-investimento) for a valid fund name')
+        raise ConnectionError("Could not load funds from page.")
 
     value = []
     date = []
     netAssets = []
     shareholders = []
 
-    fund_observations = fund[FUND_OBSERVATIONS]
+    fund_observations = fund[OBS]
     for observation in fund_observations:
         tempDate = datetime.datetime.strptime(observation[OBS_DATE], '%Y-%m-%d').date()
         if start <= tempDate <= end:
@@ -105,7 +106,7 @@ def getFund(fundName: str, benchmark: str = None, type_: str = None, period: str
     return final
 
 
-def get_funds(fundList: List[str], type_: str = None, period: str = None,
+def getFunds(fundList: List[str], type_: str = None, period: str = None,
               start: Union[str, datetime.date] = None, end: Union[str, datetime.date] = None,
              simplifiedName: bool = False):
     """
@@ -117,6 +118,7 @@ def get_funds(fundList: List[str], type_: str = None, period: str = None,
             - Accept Values: '1w', '2w','1m','2m','3m','6m','1y','2y','3y', '4y', '5y'.
         - start and end: You can also set the date,
             - Accept Values: datetime.date or string with format 'dd/mm/yy'
+        - simplifiedName: Shorter names for plot and matrix visualization
     """
 
     listFinalDict = {}
@@ -152,7 +154,7 @@ def get_funds(fundList: List[str], type_: str = None, period: str = None,
         value = []
         date = []
 
-        fund_observations = fund[FUND_OBSERVATIONS]
+        fund_observations = fund[OBS]
         for observation in fund_observations:
             tempDate = datetime.datetime.strptime(observation[OBS_DATE], '%Y-%m-%d').date()
             if start <= tempDate <= end:
@@ -230,11 +232,11 @@ def __getBenchmark(benchmark, start, end, data):
     benchmarkData = data["props"]["initialReduxState"][benchmarkOptions[benchmark]]
     bench = []
     benchDate = []
-    funds = benchmarkData[FUND_OBSERVATIONS]
+    funds = benchmarkData[OBS]
     for i in range(len(funds)):
         tempDate = datetime.datetime.strptime(funds[i]['d'], '%Y-%m-%d').date()
         if start <= tempDate <= end:
-            bench.append(funds[OBS_VALUE])
+            bench.append(funds[i][OBS_VALUE])
             benchDate.append(tempDate)
 
     bench = np.array(bench)
