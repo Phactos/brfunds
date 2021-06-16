@@ -134,7 +134,7 @@ def __startTreatment(start, end, period):
     return start
 
 def __endTreatment(end, start, period):    
-    if (end == None and period == None):
+    if (end == None and period == None or end == None and period != None and start == None):
         end = datetime.date.today()
     elif(end == None and period != None and start != None):
         end = __getPeriodOptions(period, start, signal= False)
