@@ -106,7 +106,8 @@ def getFund(fundName: str, benchmark: str = None, type_: str = None, period: str
 
 
 def get_funds(fundList: List[str], type_: str = None, period: str = None,
-              start: Union[str, datetime.date] = None, end: Union[str, datetime.date] = None):
+              start: Union[str, datetime.date] = None, end: Union[str, datetime.date] = None,
+             simplifiedName: bool = False):
     """
     Params:
         - fundList: List with the strings of the fund names.
@@ -121,6 +122,9 @@ def get_funds(fundList: List[str], type_: str = None, period: str = None,
     listFinalDict = {}
     for fundName in fundList:
         name = __nameTreatment(fundName)
+        if simplifiedName:
+            fundName = fundName.upper()
+            fundName = fundName.split('FUNDO',1)[0]
 
         if type_ is None:
             type_ = 'acao'
@@ -194,9 +198,9 @@ def __startTreatment(start, end, period):
         start = __getPeriodOptions(period, end)
     return start
 
-
-def __endTreatment(end, start, period):
-    if end is None and period is None:
+  
+def __endTreatment(end, start, period):    
+    if end is None and period is None or end is None and period is not None and start is None:
         end = datetime.date.today()
     elif end is None and period is not None and start is not None:
         end = __getPeriodOptions(period, start, signal=False)
