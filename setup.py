@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="brfunds",
-    version="0.0.1",
+    version="0.0.2",
     author="Phactos",
     description="Package to scrap data from brazilian funds",
     long_description=long_description,
