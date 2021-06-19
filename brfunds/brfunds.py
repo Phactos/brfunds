@@ -108,7 +108,7 @@ def getFund(fundName: str, benchmark: str = None, type_: str = None, period: str
 
 def getFunds(fundList: List[str], type_: str = None, period: str = None,
               start: Union[str, datetime.date] = None, end: Union[str, datetime.date] = None,
-             simplifiedName: bool = False):
+             simplifiedName: bool = False) -> pd.DataFrame:
     """
     Params:
         - fundList: List with the strings of the fund names.
@@ -268,3 +268,21 @@ def __getPeriodOptions(period, reference, signal=True):
                      '4y': reference - signal * datetime.timedelta(days=1460),
                      '5y': reference - signal * datetime.timedelta(days=1825)}
     return periodOptions[period]
+
+def ListAllFunds() -> list:
+    """Return a list with all the availables funds. No params."""
+    fundList = []
+    urls = ['https://www.comparadordefundos.com.br/fundos-de-investimento/fundos-de-acoes',
+            'https://www.comparadordefundos.com.br/fundos-de-investimento/fundos-de-renda-fixa',
+            'https://www.comparadordefundos.com.br/fundos-de-investimento/fundos-cambial',
+            'https://www.comparadordefundos.com.br/fundos-de-investimento/fundos-multimercado']
+    for url in urls:
+        page = requests.get(url)
+        soup = BeautifulSoup(page.content, 'html.parser')
+        table = soup.find_all("span", {"class": "jss21 jss30 jss231 jss233"})[4:]
+        for fund in table:
+            fundList.append(fund.contents[0])
+    fundList = list(set(fundList))
+    fundList.sort()
+    print('Warning: This function is in Beta, some funds may be missing.')
+    return fundList
