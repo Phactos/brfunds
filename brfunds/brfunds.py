@@ -175,7 +175,7 @@ def getFunds(fundList: List[str], type_: str = None, period: str = None,
     return listFinal
 
 
-def __nameTreatment(name):
+def __nameTreatment(name, search = False):
     name = name.lower()
     replace_map = {
         "-": " ",
@@ -186,6 +186,11 @@ def __nameTreatment(name):
         'u': 'ú',
         'c': 'ç'
     }
+    if search is not False: 
+        replace_map['-'] = " "
+    else:
+        replace_map['+'] = " "
+
     for new, old_letters in replace_map.items():
         for old in old_letters:
             name = name.replace(old, new)
@@ -269,20 +274,26 @@ def __getPeriodOptions(period, reference, signal=True):
                      '5y': reference - signal * datetime.timedelta(days=1825)}
     return periodOptions[period]
 
-def ListAllFunds() -> list:
+def listAllFundNames() -> list:
     """Return a list with all the availables funds. No params."""
+    url = 'https://cvm.comparadordefundos.com.br/funds?limit='
+    fundList = __getFundName(url)
+    return fundList
+
+def searchFund(name:str) -> list:
+    """Return a list with funds with similar names"""
+    name = __nameTreatment(name, search=True)
+    url = f'https://cvm.comparadordefundos.com.br/funds?s={name}'
+    fundList = __getFundName(url, sort=False)
+    return fundList
+
+def __getFundName(url, sort = True):
+    NAME = 'n'
     fundList = []
-    urls = ['https://www.comparadordefundos.com.br/fundos-de-investimento/fundos-de-acoes',
-            'https://www.comparadordefundos.com.br/fundos-de-investimento/fundos-de-renda-fixa',
-            'https://www.comparadordefundos.com.br/fundos-de-investimento/fundos-cambial',
-            'https://www.comparadordefundos.com.br/fundos-de-investimento/fundos-multimercado']
-    for url in urls:
-        page = requests.get(url)
-        soup = BeautifulSoup(page.content, 'html.parser')
-        table = soup.find_all("span", {"class": "jss21 jss30 jss231 jss233"})[4:]
-        for fund in table:
-            fundList.append(fund.contents[0])
+    funds = requests.get(url).json()
+    for fund in funds:
+        fundList.append(fund[NAME])
     fundList = list(set(fundList))
-    fundList.sort()
-    print('Warning: This function is in Beta, some funds may be missing.')
+    if sort is True:
+        fundList.sort()
     return fundList
