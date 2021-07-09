@@ -277,17 +277,17 @@ def __getPeriodOptions(period, reference, signal=True):
 def listAllFundNames() -> list:
     """Return a list with all the availables funds. No params."""
     url = 'https://cvm.comparadordefundos.com.br/funds?limit='
-    fundList = __getFundName(url)
+    fundList = __getFundNames(url)
     return fundList
 
 def searchFund(name:str) -> list:
     """Return a list with funds with similar names"""
     name = __nameTreatment(name, search=True)
     url = f'https://cvm.comparadordefundos.com.br/funds?s={name}'
-    fundList = __getFundName(url, sort=False)
+    fundList = __getFundNames(url, sort=False)
     return fundList
 
-def __getFundName(url, sort = True):
+def __getFundNames(url, sort = True):
     NAME = 'n'
     fundList = []
     funds = requests.get(url).json()
