@@ -14,6 +14,7 @@ pd.options.mode.chained_assignment = None
 
 OBS = 'r'
 
+NAME = 'n'
 OBS_DATE = 'd'
 OBS_VALUE = 'q'
 OBS_NET_ASSETS = 'nw'
@@ -274,26 +275,21 @@ def __getPeriodOptions(period, reference, signal=True):
                      '5y': reference - signal * datetime.timedelta(days=1825)}
     return periodOptions[period]
 
-def listAllFundNames() -> list:
-    """Return a list with all the availables funds. No params."""
-    url = 'https://cvm.comparadordefundos.com.br/funds?limit='
-    fundList = __getFundNames(url)
-    return fundList
-
 def searchFund(name:str) -> list:
     """Return a list with funds with similar names"""
     name = __nameTreatment(name, search=True)
     url = f'https://cvm.comparadordefundos.com.br/funds?s={name}'
-    fundList = __getFundNames(url, sort=False)
+    fundList = __getFundNames(url, search=True)
     return fundList
 
-def __getFundNames(url, sort = True):
-    NAME = 'n'
+def __getFundNames(url, search = False):    
     fundList = []
     funds = requests.get(url).json()
-    for fund in funds:
-        fundList.append(fund[NAME])
-    fundList = list(set(fundList))
-    if sort is True:
-        fundList.sort()
+    if (search):
+        for fund in funds:
+            if(OBS_VALUE in fund):
+                fundList.append(fund[NAME])
+    else:
+        for fund in funds:
+            fundList.append(fund[NAME])
     return fundList
