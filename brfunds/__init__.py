@@ -1,1 +1,1 @@
-from .brfunds import getFund, getFunds, listAllFundNames, searchFund
+from .brfunds import getFund, getFunds, searchFund
