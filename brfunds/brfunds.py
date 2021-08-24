@@ -31,7 +31,7 @@ def getFund(fundName: str, benchmark: str = None, type_: str = None, period: str
         - Daily Variation
         - Total Variation
         - Net Assets (if fullData)
-        - # of Shareholders (if FullData)
+        - Number of Shareholders (if FullData)
 
     Params:
         - fundName: The fund name (will find the closest result to the given name)
@@ -69,6 +69,8 @@ def getFund(fundName: str, benchmark: str = None, type_: str = None, period: str
         except KeyError:
             time.sleep(1)
             continue
+        except AttributeError:
+            time.sleep(1)
     else:
         print('Check CVM (http://sistemas.cvm.gov.br/fundos.asp) or Comparador de Fundos (https://www.comparadordefundos.com.br/fundos-de-investimento) for a valid fund name')
         raise ConnectionError("Could not load funds from page.")
@@ -111,6 +113,8 @@ def getFunds(fundList: List[str], type_: str = None, period: str = None,
               start: Union[str, datetime.date] = None, end: Union[str, datetime.date] = None,
              simplifiedName: bool = False) -> pd.DataFrame:
     """
+    Return a pandas.DataFrame representing a time series with each observation
+    indexed by its datetime.date and the variation of each fund on the list.
     Params:
         - fundList: List with the strings of the fund names.
         - type_: Type of the investment, usually work as default.
@@ -276,7 +280,7 @@ def __getPeriodOptions(period, reference, signal=True):
     return periodOptions[period]
 
 def searchFund(name:str) -> list:
-    """Return a list with funds with similar names"""
+    """Return a list with funds with similar names, can return up to 20 results at a time"""
     name = __nameTreatment(name, search=True)
     url = f'https://cvm.comparadordefundos.com.br/funds?s={name}'
     fundList = __getFundNames(url, search=True)
