@@ -282,7 +282,7 @@ def __getPeriodOptions(period, reference, signal=True):
 def searchFund(name:str) -> list:
     """Return a list with funds with similar names, can return up to 20 results at a time"""
     name = __nameTreatment(name, search=True)
-    url = f'https://cvm.comparadordefundos.com.br/funds?s={name}'
+    url = f'https://comparadordeativos-api.eqi.life/funds?s={name}'
     fundList = __getFundNames(url, search=True)
     return fundList
 

@@ -13,6 +13,7 @@ from brfunds import getFund
 # or Comparador de Fundos (https://www.comparadordefundos.com.br/fundos-de-investimento) 
 # for a valid fund name
 getFund('Example Fund 1')
+# You can also use the fund CNPJ as the name
 ```
 
 |   Date    | Value      | Daily Variation |   Total Variation |
