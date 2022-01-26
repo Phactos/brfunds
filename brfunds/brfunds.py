@@ -183,7 +183,6 @@ def getFunds(fundList: List[str], type_: str = None, period: str = None,
 def __nameTreatment(name, search = False):
     name = name.lower()
     replace_map = {
-        "-": " ",
         'a': 'ãáâ',
         'e': 'éê',
         'i': 'í',
@@ -191,7 +190,7 @@ def __nameTreatment(name, search = False):
         'u': 'ú',
         'c': 'ç'
     }
-    if search is not False: 
+    if search is False: 
         replace_map['-'] = " "
     else:
         replace_map['+'] = " "
