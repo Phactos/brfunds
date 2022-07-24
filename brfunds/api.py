@@ -110,6 +110,21 @@ def networth_info(cpnj_ids: str, startDate = '', endDate = ''):
     else:
         raise RequestError(response.status_code)
 
+def drawdown_info(cpnj_ids: str, startDate = '', endDate = ''):
+    """Return the net worth info from the given fund
+    """
+    cpnj_id = _join(cpnj_ids)
+    startDate = str(startDate)
+    endDate = str(endDate)
+
+    response = requests.get(f'{funds_url}/{cpnj_id}/drawdown/chart',params={
+                                'startDate' : startDate,
+                                'endDate' : endDate})
+    if response.ok:
+        return response.json()
+    else:
+        raise RequestError(response.status_code)
+
 
 def _join(terms):
     result = ','.join(term for term in terms)

@@ -69,7 +69,10 @@ def _baseGetData(cnpj: tuple, scrapType,benchmark: List[str] = None, period: str
 
     FinalList = pd.DataFrame({'Date' : []})
     for fund in data:
-        valueList = fund[VALUE]
+        if scrapType == 'drawdown':
+            valueList = list(list(zip(*fund[VALUE]))[0])
+        else:
+            valueList = fund[VALUE]
         dateList = api.as_date(fund[DATE])
 
         fundDict = {
@@ -101,6 +104,10 @@ def getFundsShareholders(*cnpj, period: str = None,
 def getFundsNetWorth(*cnpj, period: str = None,
             start: Union[str, datetime.date] = None, end: Union[str, datetime.date] = None) -> pd.DataFrame:
     return _baseGetData(cnpj, scrapType='networth',period=period,start=start,end=end)
+
+def getFundsDrawdown(start: Union[str, datetime.date],*cnpj, period: str = None,
+             end: Union[str, datetime.date] = None) -> pd.DataFrame:
+    return _baseGetData(cnpj, scrapType='drawdown',period=period,start=start,end=end, multiplier=1/100)
 
 def __nameTreatment(name :str, search = False):
     name = name.lower()
@@ -151,6 +158,8 @@ def __getData(cnpj, type,start, end, benchmark = None):
         data = api.shareholder_info(cnpj, startDate=start, endDate=end)
     if type == 'networth':
         data = api.networth_info(cnpj, startDate=start,endDate=end)
+    if type == 'drawdown':
+        data = api.drawdown_info(cnpj, startDate=start,endDate=end)
     return data
 
 def __getPeriodOptions(period, reference, signal=True):
