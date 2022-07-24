@@ -58,18 +58,21 @@ def rentability_info(fund_ids: str, benchmarks: List[str] = None, startDate = ''
                                 'endDate' : endDate
                             })
     if response.ok:
-        print(response.url)
         return response.json()
     else:
         raise RequestError(response.status_code)
 
 
-def volatility_info(*fund_ids: str):
+def volatility_info(fund_ids: str, startDate = '', endDate = ''):
     """Return the volatility info of the given fund
     """
     fund_id = _join(fund_ids)
+    startDate = str(startDate)
+    endDate = str(endDate)
 
-    response = requests.get(f'{funds_url}/{fund_id}/volatility/chart')
+    response = requests.get(f'{funds_url}/{fund_id}/volatility/chart',params={
+                                'startDate' : startDate,
+                                'endDate' : endDate})
     if response.ok:
         return response.json()
     else:
