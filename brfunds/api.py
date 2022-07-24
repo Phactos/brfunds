@@ -63,10 +63,10 @@ def rentability_info(fund_ids: str, benchmarks: List[str] = None, startDate = ''
         raise RequestError(response.status_code)
 
 
-def volatility_info(fund_ids: str, startDate = '', endDate = ''):
+def volatility_info(cnpjs: str, startDate = '', endDate = ''):
     """Return the volatility info of the given fund
     """
-    fund_id = _join(fund_ids)
+    fund_id = _join(cnpjs)
     startDate = str(startDate)
     endDate = str(endDate)
 
@@ -79,24 +79,32 @@ def volatility_info(fund_ids: str, startDate = '', endDate = ''):
         raise RequestError(response.status_code)
 
 
-def shareholder_info(*cpnj_ids: str):
+def shareholder_info(cpnjs: str, startDate = '', endDate = ''):
     """Return the shareholder info of the given fund
     """
-    cpnj_id = _join(cpnj_ids)
+    cpnj_id = _join(cpnjs)
+    startDate = str(startDate)
+    endDate = str(endDate)
 
-    response = requests.get(f'{funds_url}/{cpnj_id}/amountShareholders/chart')
+    response = requests.get(f'{funds_url}/{cpnj_id}/amountShareholders/chart',params={
+                                'startDate' : startDate,
+                                'endDate' : endDate})
     if response.ok:
         return response.json()
     else:
         raise RequestError(response.status_code)
 
 
-def networth_info(*cpnj_ids: str):
+def networth_info(cpnj_ids: str, startDate = '', endDate = ''):
     """Return the net worth info from the given fund
     """
     cpnj_id = _join(cpnj_ids)
+    startDate = str(startDate)
+    endDate = str(endDate)
 
-    response = requests.get(f'{funds_url}/{cpnj_id}/netWorth/chart')
+    response = requests.get(f'{funds_url}/{cpnj_id}/netWorth/chart',params={
+                                'startDate' : startDate,
+                                'endDate' : endDate})
     if response.ok:
         return response.json()
     else:

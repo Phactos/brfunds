@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 
 #Request from api
-from api import search, rentability_info, as_date, volatility_info
+import api
 
 pd.options.mode.chained_assignment = None
 
@@ -20,7 +20,7 @@ CNPJ = 'cnpj'
 
 #Get rentability of funds
 def _baseGetData(cnpj: tuple, scrapType,benchmark: List[str] = None, period: str = None,
-            start: Union[str, datetime.date] = None, end: Union[str, datetime.date] = None) -> pd.DataFrame:
+            start: Union[str, datetime.date] = None, end: Union[str, datetime.date] = None, multiplier = 1) -> pd.DataFrame:
     """
     Return a pandas.DataFrame representing a time series with each observation
     indexed by its datetime.date and the following variables
@@ -70,7 +70,7 @@ def _baseGetData(cnpj: tuple, scrapType,benchmark: List[str] = None, period: str
     FinalList = pd.DataFrame({'Date' : []})
     for fund in data:
         valueList = fund[VALUE]
-        dateList = as_date(fund[DATE])
+        dateList = api.as_date(fund[DATE])
 
         fundDict = {
             'Date': np.array(dateList),
@@ -79,7 +79,7 @@ def _baseGetData(cnpj: tuple, scrapType,benchmark: List[str] = None, period: str
 
         final = pd.DataFrame(fundDict)
         final = final.dropna()
-        final[fund["indicatorName"].upper()] = final[fund["indicatorName"].upper()] / 100
+        final[fund["indicatorName"].upper()] = final[fund["indicatorName"].upper()] * multiplier
 
         final.set_index('Date', inplace=True)
         FinalList = pd.merge(FinalList, final, how='outer',on='Date')
@@ -88,11 +88,19 @@ def _baseGetData(cnpj: tuple, scrapType,benchmark: List[str] = None, period: str
 
 def getFundsRentability(*cnpj, benchmark: List[str] = None, period: str = None,
             start: Union[str, datetime.date] = None, end: Union[str, datetime.date] = None) -> pd.DataFrame:
-    return _baseGetData(cnpj, scrapType='rentability',benchmark= benchmark,period=period,start=start,end=end)
+    return _baseGetData(cnpj, scrapType='rentability',benchmark= benchmark,period=period,start=start,end=end, multiplier=1/100)
 
 def getFundsVolatility(*cnpj, period: str = None,
             start: Union[str, datetime.date] = None, end: Union[str, datetime.date] = None) -> pd.DataFrame:
-    return _baseGetData(cnpj, scrapType='volatility',period=period,start=start,end=end)
+    return _baseGetData(cnpj, scrapType='volatility',period=period,start=start,end=end, multiplier=1/100)
+
+def getFundsShareholders(*cnpj, period: str = None,
+            start: Union[str, datetime.date] = None, end: Union[str, datetime.date] = None) -> pd.DataFrame:
+    return _baseGetData(cnpj, scrapType='shareholder',period=period,start=start,end=end)
+
+def getFundsNetWorth(*cnpj, period: str = None,
+            start: Union[str, datetime.date] = None, end: Union[str, datetime.date] = None) -> pd.DataFrame:
+    return _baseGetData(cnpj, scrapType='networth',period=period,start=start,end=end)
 
 def __nameTreatment(name :str, search = False):
     name = name.lower()
@@ -136,9 +144,13 @@ def __endTreatment(end, start, period):
 
 def __getData(cnpj, type,start, end, benchmark = None):
     if type == 'rentability':
-        data = rentability_info(cnpj, benchmarks= benchmark, startDate=start,endDate=end)
+        data = api.rentability_info(cnpj, benchmarks= benchmark, startDate=start,endDate=end)
     if type == 'volatility':
-        data = volatility_info(cnpj,startDate=start,endDate=end)
+        data = api.volatility_info(cnpj, startDate=start,endDate=end)
+    if type == 'shareholder':
+        data = api.shareholder_info(cnpj, startDate=start, endDate=end)
+    if type == 'networth':
+        data = api.networth_info(cnpj, startDate=start,endDate=end)
     return data
 
 def __getPeriodOptions(period, reference, signal=True):
@@ -162,7 +174,7 @@ def __getPeriodOptions(period, reference, signal=True):
 def searchFund(name:str, max_size : int = 20) -> list:
     """Return a list with funds with similar names, can control the size of the list with the max_size parameter, default 20"""
     name = __nameTreatment(name, search=True)
-    fundData = search(name, max_size)
+    fundData = api.search(name, max_size)
     fundList = __getFundNames(fundData)
     return fundList
 

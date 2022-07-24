@@ -1,1 +1,1 @@
-from .brfunds import getFundsRentability, searchFund
+from .brfunds import getFundsRentability, searchFund, getFundsVolatility, getFundsShareholders, getFundsNetWorth
