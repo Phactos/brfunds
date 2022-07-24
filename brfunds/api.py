@@ -1,4 +1,4 @@
-from typing import List
+from typing import Iterable, List
 
 import requests
 import datetime
@@ -15,7 +15,7 @@ def as_date(epoch_dates: List[int]) -> List[datetime.date]:
     return dates
 
 
-def search(name: str, rows: int = 20, offset: int = 0):
+def search(name: str, rows: int = 20, offset: int = 0) -> List:
     """Return the search data for funds found with the given name
     """
     response = requests.get(f'{funds_url}/list',
@@ -30,10 +30,10 @@ def search(name: str, rows: int = 20, offset: int = 0):
         raise RequestError(response.status_code)
 
 
-def cnpj_info(*cnpj_ids: str):
-    """Return the company info using the cnpj id
+def cnpjInfo(*cnpjs: str):
+    """Return the company info using the cnpjs id
     """
-    cnpj_id = _join(cnpj_ids)
+    cnpj_id = _join(cnpjs)
 
     response = requests.get(f'{funds_url}/{cnpj_id}/info')
     if response.ok:
@@ -42,20 +42,20 @@ def cnpj_info(*cnpj_ids: str):
         raise RequestError(response.status_code)
 
 
-def rentability_info(fund_ids: str, benchmarks: List[str] = None, startDate = '', endDate = ''):
+def rentabilityInfo(cnpjs: Iterable[str], benchmarks: List[str] = None,
+                    startDate: int = '', endDate: int = '') -> List:
     """Return the fund info using the fund id
     """
-    fund_id = _join(fund_ids)
-    indicator_arg = '' if benchmarks is None else ','.join(benchmarks)
+    cnpj = _join(cnpjs)
+    benchmark = '' if benchmarks is None else _join(benchmarks)
     startDate = str(startDate)
     endDate = str(endDate)
 
-    
-    response = requests.get(f'{funds_url}/{fund_id}/rentability/chart',
+    response = requests.get(f'{funds_url}/{cnpj}/rentability/chart',
                             params={
-                                'indicators': indicator_arg,
-                                'startDate' : startDate,
-                                'endDate' : endDate
+                                'indicators': benchmark,
+                                'startDate': startDate,
+                                'endDate': endDate
                             })
     if response.ok:
         return response.json()
@@ -63,73 +63,73 @@ def rentability_info(fund_ids: str, benchmarks: List[str] = None, startDate = ''
         raise RequestError(response.status_code)
 
 
-def volatility_info(cnpjs: str, startDate = '', endDate = ''):
+def volatilityInfo(cnpjs: Iterable[str], startDate: int = '', endDate: int = '') -> List:
     """Return the volatility info of the given fund
     """
-    fund_id = _join(cnpjs)
+    cnpj = _join(cnpjs)
     startDate = str(startDate)
     endDate = str(endDate)
 
-    response = requests.get(f'{funds_url}/{fund_id}/volatility/chart',params={
-                                'startDate' : startDate,
-                                'endDate' : endDate})
+    response = requests.get(f'{funds_url}/{cnpj}/volatility/chart', params={
+                                'startDate': startDate,
+                                'endDate': endDate})
     if response.ok:
         return response.json()
     else:
         raise RequestError(response.status_code)
 
 
-def shareholder_info(cpnjs: str, startDate = '', endDate = ''):
+def shareholderInfo(cnjps: Iterable[str], startDate: int = '', endDate: int = '') -> List:
     """Return the shareholder info of the given fund
     """
-    cpnj_id = _join(cpnjs)
+    cnpj = _join(cnjps)
     startDate = str(startDate)
     endDate = str(endDate)
 
-    response = requests.get(f'{funds_url}/{cpnj_id}/amountShareholders/chart',params={
-                                'startDate' : startDate,
-                                'endDate' : endDate})
+    response = requests.get(f'{funds_url}/{cnpj}/amountShareholders/chart', params={
+                                'startDate': startDate,
+                                'endDate': endDate})
     if response.ok:
         return response.json()
     else:
         raise RequestError(response.status_code)
 
 
-def networth_info(cpnj_ids: str, startDate = '', endDate = ''):
+def networthInfo(cnpjs: Iterable[str], startDate: int = '', endDate: int = '') -> List:
     """Return the net worth info from the given fund
     """
-    cpnj_id = _join(cpnj_ids)
+    cnpj = _join(cnpjs)
     startDate = str(startDate)
     endDate = str(endDate)
 
-    response = requests.get(f'{funds_url}/{cpnj_id}/netWorth/chart',params={
-                                'startDate' : startDate,
-                                'endDate' : endDate})
+    response = requests.get(f'{funds_url}/{cnpj}/netWorth/chart', params={
+                                'startDate': startDate,
+                                'endDate': endDate})
     if response.ok:
         return response.json()
     else:
         raise RequestError(response.status_code)
 
-def drawdown_info(cpnj_ids: str, startDate = '', endDate = ''):
-    """Return the net worth info from the given fund
+
+def drawdownInfo(cnpjs: Iterable[str], startDate: int = '', endDate: int = ''):
+    """Return the drawdown info from the given fund
     """
-    cpnj_id = _join(cpnj_ids)
+    cnpj = _join(cnpjs)
     startDate = str(startDate)
     endDate = str(endDate)
 
-    response = requests.get(f'{funds_url}/{cpnj_id}/drawdown/chart',params={
-                                'startDate' : startDate,
-                                'endDate' : endDate})
+    response = requests.get(f'{funds_url}/{cnpj}/drawdown/chart', params={
+                                'startDate': startDate,
+                                'endDate': endDate})
     if response.ok:
         return response.json()
     else:
         raise RequestError(response.status_code)
 
 
-def _join(terms):
+def _join(terms: Iterable[str]) -> str:
     result = ','.join(term for term in terms)
     return result
-
 
 
 class RequestError(Exception):
