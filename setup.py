@@ -20,6 +20,6 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     packages=["brfunds"],
-    install_requires=['requests','numpy','pandas','bs4'],
+    install_requires=['requests','numpy','pandas'],
     python_requires=">=3.6",
 )

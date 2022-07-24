@@ -16,7 +16,7 @@ pd.options.mode.chained_assignment = None
 VALUE = 'values'
 DATE = 'dates'
 NAME = 'socialName'
-CNPJ = 'cnpjs'
+CNPJ = 'cnpj'
 
 
 #Get rentability of funds
