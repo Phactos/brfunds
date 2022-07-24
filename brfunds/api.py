@@ -22,8 +22,7 @@ def search(name: str, rows: int = 20, offset: int = 0) -> List:
                             params={
                                 'search': name,
                                 'rows': rows,
-                                'offset': offset,
-                                'type': 'FI'
+                                'offset': offset
                             })
     if response.ok:
         return response.json()
