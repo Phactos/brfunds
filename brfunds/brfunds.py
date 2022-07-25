@@ -158,7 +158,7 @@ def getFundsNetWorth(*cnpjs: str, period: str = None, start: Union[str, datetime
     return _baseGetData(cnpjs, scrapType='networth', period=period, start=start, end=end)
 
 
-def getFundsDrawdown(*cnpjs: str, period: str = None, start: Union[str, datetime.date],
+def getFundsDrawdown(*cnpjs: str, period: str = None, start: Union[str, datetime.date] = None,
                      end: Union[str, datetime.date] = None) -> pd.DataFrame:
     """Return the drawdown data for the specified cnpjs
 
@@ -198,7 +198,7 @@ def __nameTreatment(name: str, search: bool = False) -> str:
 
 def __startTreatment(start: datetime.datetime, end: datetime.datetime, period: str) -> int:
     if start is None and period is None:
-        start = datetime.datetime(2000, 1, 1)
+        start = datetime.datetime(2016, 1, 1)
     elif start is None and period is not None:
         return __getPeriodOptions(period, end)
     return int(start.timestamp()*1000)
