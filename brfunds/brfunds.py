@@ -96,12 +96,20 @@ def _baseGetData(cnpjs: Iterable[str], scrapType: str, benchmarks: List[str] = N
     return finalList.set_index('Date')
 
 
-def getFundsRentability(*cnpjs: str, benchmarks: List[str] = None, period: str = None,
+def getFundsEarnings(*cnpjs: str, benchmarks: List[str] = None, period: str = None,
                         start: Union[str, datetime.date] = None,
                         end: Union[str, datetime.date] = None) -> pd.DataFrame:
     """Return the profitability data for the specified cnpjs
 
-    See _baseGetData for parameter reference
+    Params:
+        - cnpjs: The list of fund cnpjs. You can get this info through the searchFund function
+        - benchmarks: Reference Index.
+            - Accept Values: 'cdi', 'ibovespa', 'ipca', 'poupanca'
+        - period: Time Analysis, None return all data,
+            - Accept Values: '1w', '2w','1m','2m','3m','6m','1y','2y','3y', '4y', '5y'.
+        - start and end: Timeframe to search for funds in.
+            - Accept Values: datetime.date or string with format 'dd/mm/yy'
+
     """
     return _baseGetData(cnpjs, scrapType='rentability', benchmarks=benchmarks, period=period,
                         start=start, end=end, multiplier=1/100)
@@ -111,7 +119,12 @@ def getFundsVolatility(*cnpjs: str, period: str = None, start: Union[str, dateti
                        end: Union[str, datetime.date] = None) -> pd.DataFrame:
     """Return the volitility data for the specified cnpjs
 
-    See _baseGetData for parameter reference
+        Params:
+        - cnpjs: The list of fund cnpjs. You can get this info through the searchFund function
+        - period: Time Analysis, None return all data,
+            - Accept Values: '1w', '2w','1m','2m','3m','6m','1y','2y','3y', '4y', '5y'.
+        - start and end: Timeframe to search for funds in.
+            - Accept Values: datetime.date or string with format 'dd/mm/yy'
     """
     return _baseGetData(cnpjs, scrapType='volatility', period=period, start=start, end=end,
                         multiplier=1/100)
@@ -121,7 +134,12 @@ def getFundsShareholders(*cnpjs: str, period: str = None, start: Union[str, date
                          end: Union[str, datetime.date] = None) -> pd.DataFrame:
     """Return the shareholder amount data for the specified cnpjs
 
-    See _baseGetData for parameter reference
+        Params:
+        - cnpjs: The list of fund cnpjs. You can get this info through the searchFund function
+        - period: Time Analysis, None return all data,
+            - Accept Values: '1w', '2w','1m','2m','3m','6m','1y','2y','3y', '4y', '5y'.
+        - start and end: Timeframe to search for funds in.
+            - Accept Values: datetime.date or string with format 'dd/mm/yy'
     """
     return _baseGetData(cnpjs, scrapType='shareholder', period=period, start=start, end=end)
 
@@ -130,7 +148,12 @@ def getFundsNetWorth(*cnpjs: str, period: str = None, start: Union[str, datetime
                      end: Union[str, datetime.date] = None) -> pd.DataFrame:
     """Return the net worth data for the specified cnpjs
 
-    See _baseGetData for parameter reference
+        Params:
+        - cnpjs: The list of fund cnpjs. You can get this info through the searchFund function
+        - period: Time Analysis, None return all data,
+            - Accept Values: '1w', '2w','1m','2m','3m','6m','1y','2y','3y', '4y', '5y'.
+        - start and end: Timeframe to search for funds in.
+            - Accept Values: datetime.date or string with format 'dd/mm/yy'
     """
     return _baseGetData(cnpjs, scrapType='networth', period=period, start=start, end=end)
 
@@ -139,7 +162,12 @@ def getFundsDrawdown(*cnpjs: str, period: str = None, start: Union[str, datetime
                      end: Union[str, datetime.date] = None) -> pd.DataFrame:
     """Return the drawdown data for the specified cnpjs
 
-    See _baseGetData for parameter reference
+        Params:
+        - cnpjs: The list of fund cnpjs. You can get this info through the searchFund function
+        - period: Time Analysis, None return all data,
+            - Accept Values: '1w', '2w','1m','2m','3m','6m','1y','2y','3y', '4y', '5y'.
+        - start and end: Timeframe to search for funds in.
+            - Accept Values: datetime.date or string with format 'dd/mm/yy'
     """
     return _baseGetData(cnpjs, scrapType='drawdown', period=period, start=start, end=end,
                         multiplier=1/100)
@@ -233,5 +261,5 @@ def __getFundNames(data: List) -> pd.DataFrame:
     for fund in data:
         fundList.append(fund[NAME])
         cnpjList.append(fund[CNPJ])
-    data = pd.DataFrame({'Nome': fundList, 'CNPJ': cnpjList})
+    data = pd.DataFrame({'Name': fundList, 'CNPJ': cnpjList})
     return data
