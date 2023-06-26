@@ -249,17 +249,6 @@ def __getPeriodOptions(period: str, reference: datetime.datetime, signal: bool =
 
 def searchFund(name: str, max_size: int = 20) -> pd.DataFrame:
     """Return a list with funds with similar names, can control the size of the list with the max_size parameter, default 20"""
-    name = __nameTreatment(name, search=True)
-    fundData = api.search(name, max_size)
-    fundList = __getFundNames(fundData)
-    return fundList
-
-
-def __getFundNames(data: List) -> pd.DataFrame:
-    fundList = []
-    cnpjList = []
-    for fund in data:
-        fundList.append(fund[NAME])
-        cnpjList.append(fund[CNPJ])
-    data = pd.DataFrame({'Name': fundList, 'CNPJ': cnpjList})
-    return data
+    fundData : pd.DataFrame = api.search(name)
+    fundData = fundData.head(max_size)
+    return fundData

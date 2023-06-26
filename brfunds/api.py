@@ -2,8 +2,10 @@ from typing import Iterable, List
 
 import requests
 import datetime
+import pandas as pd
 
 funds_url = 'https://api.compareativos.com.br/fund'
+funds_data = 'https://comparadordefundos.com.br/api/v2/assets/'
 
 
 def as_date(epoch_dates: List[int]) -> List[datetime.date]:
@@ -15,17 +17,21 @@ def as_date(epoch_dates: List[int]) -> List[datetime.date]:
     return dates
 
 
-def search(name: str, rows: int = 20, offset: int = 0) -> List:
+def search(name: str, rows: int = 50000, offset: int = 0) -> List:
     """Return the search data for funds found with the given name
     """
-    response = requests.get(f'{funds_url}/list',
+    response = requests.get(f'{funds_data}/list',
                             params={
-                                'search': name,
                                 'rows': rows,
                                 'offset': offset
                             })
     if response.ok:
-        return response.json()
+        data = response.json()
+        data = pd.DataFrame.from_dict(data)
+        data = data.query(f's.str.contains("{name.upper()}")', engine='python')
+        data = data[['i','c','s']]
+        data.columns = ['ID', 'CNPJ', 'Name']
+        return data.reset_index()[['ID', 'CNPJ', 'Name']]
     else:
         raise RequestError(response.status_code)
 
