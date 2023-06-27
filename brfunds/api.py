@@ -4,7 +4,7 @@ import requests
 import datetime
 import pandas as pd
 
-funds_url = 'https://api.compareativos.com.br/fund'
+funds_url = 'https://comparadordefundos.com.br/api/assets'
 funds_data = 'https://comparadordefundos.com.br/api/v2/assets/'
 
 
@@ -28,7 +28,7 @@ def search(name: str, rows: int = 50000, offset: int = 0) -> List:
     if response.ok:
         data = response.json()
         data = pd.DataFrame.from_dict(data)
-        data = data.query(f's.str.contains("{name.upper()}")', engine='python')
+        data = data.query(f's.str.contains("{name.upper()}") | c.str.contains("{name.upper()}")', engine='python')
         data = data[['i','c','s']]
         data.columns = ['ID', 'CNPJ', 'Name']
         return data.reset_index()[['ID', 'CNPJ', 'Name']]
@@ -57,8 +57,11 @@ def rentabilityInfo(cnpjs: Iterable[str], benchmarks: List[str] = None,
     startDate = str(startDate)
     endDate = str(endDate)
 
+    cnpj = search(cnpjs[0])['ID'][0]
+
     response = requests.get(f'{funds_url}/{cnpj}/rentability/chart',
-                            params={
+                            headers={'Referer': 'https://comparadordefundos.com'}, 
+                            params= {
                                 'indicators': benchmark,
                                 'startDate': startDate,
                                 'endDate': endDate
@@ -76,7 +79,9 @@ def volatilityInfo(cnpjs: Iterable[str], startDate: int = '', endDate: int = '')
     startDate = str(startDate)
     endDate = str(endDate)
 
-    response = requests.get(f'{funds_url}/{cnpj}/volatility/chart', params={
+    cnpj = search(cnpjs[0])['ID'][0]
+    response = requests.get(f'{funds_url}/{cnpj}/volatility/chart', headers={
+                                'Referer': 'https://comparadordefundos.com'}, params={
                                 'startDate': startDate,
                                 'endDate': endDate})
     if response.ok:
@@ -85,14 +90,15 @@ def volatilityInfo(cnpjs: Iterable[str], startDate: int = '', endDate: int = '')
         raise RequestError(response.status_code)
 
 
-def shareholderInfo(cnjps: Iterable[str], startDate: int = '', endDate: int = '') -> List:
+def shareholderInfo(cnpjs: Iterable[str], startDate: int = '', endDate: int = '') -> List:
     """Return the shareholder info of the given fund
     """
-    cnpj = _join(cnjps)
+    #cnpj = _join(cnjps)
     startDate = str(startDate)
     endDate = str(endDate)
-
-    response = requests.get(f'{funds_url}/{cnpj}/amountShareholders/chart', params={
+    cnpj = search(cnpjs[0])['ID'][0]
+    response = requests.get(f'{funds_url}/{cnpj}/amount-shareholders/chart?', headers={
+                                'Referer': 'https://comparadordefundos.com'}, params={
                                 'startDate': startDate,
                                 'endDate': endDate})
     if response.ok:
@@ -107,8 +113,10 @@ def networthInfo(cnpjs: Iterable[str], startDate: int = '', endDate: int = '') -
     cnpj = _join(cnpjs)
     startDate = str(startDate)
     endDate = str(endDate)
+    cnpj = search(cnpjs[0])['ID'][0]
 
-    response = requests.get(f'{funds_url}/{cnpj}/netWorth/chart', params={
+    response = requests.get(f'{funds_url}/{cnpj}/net-worth/chart', headers={
+                                'Referer': 'https://comparadordefundos.com'}, params={
                                 'startDate': startDate,
                                 'endDate': endDate})
     if response.ok:
@@ -123,8 +131,10 @@ def drawdownInfo(cnpjs: Iterable[str], startDate: int = '', endDate: int = ''):
     cnpj = _join(cnpjs)
     startDate = str(startDate)
     endDate = str(endDate)
+    cnpj = search(cnpjs[0])['ID'][0]
 
-    response = requests.get(f'{funds_url}/{cnpj}/drawdown/chart', params={
+    response = requests.get(f'{funds_url}/{cnpj}/drawdown/chart?', headers={
+                                'Referer': 'https://comparadordefundos.com'}, params={
                                 'startDate': startDate,
                                 'endDate': endDate})
     if response.ok:
