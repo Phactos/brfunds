@@ -56,10 +56,14 @@ def rentabilityInfo(cnpjs: Iterable[str], benchmarks: List[str] = None,
     benchmark = '' if benchmarks is None else _join(benchmarks)
     startDate = str(startDate)
     endDate = str(endDate)
+    list_to_search = []
+    for cnpj in cnpjs:
+        id = search(cnpj)['ID']
+        list_to_search.append(id)
 
-    cnpj = search(cnpjs[0])['ID'][0]
-
-    response = requests.get(f'{funds_url}/{cnpj}/rentability/chart',
+    id = _join(list_to_search) 
+    
+    response = requests.get(f'{funds_url}/{id}/rentability/chart',
                             headers={'Referer': 'https://comparadordefundos.com'}, 
                             params= {
                                 'indicators': benchmark,
