@@ -20,10 +20,10 @@ def as_date(epoch_dates: List[int]) -> List[datetime.date]:
 def search(name: str, rows: int = 50000, offset: int = 0) -> List:
     """Return the search data for funds found with the given name
     """
-    response = requests.get(f'{funds_data}/list',
+    response = requests.get(f'{funds_data}/list?', headers={
+                                'Referer': 'https://comparadordefundos.com'},
                             params={
                                 'rows': rows,
-                                'offset': offset
                             })
     if response.ok:
         data = response.json()

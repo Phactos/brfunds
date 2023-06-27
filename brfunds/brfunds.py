@@ -174,7 +174,6 @@ def getFundsDrawdown(*cnpjs: str, period: str = None, start: Union[str, datetime
 
 
 def __nameTreatment(name: str, search: bool = False) -> str:
-    name = name.lower()
     replace_map = {
         'a': 'ãáâ',
         'e': 'éê',
