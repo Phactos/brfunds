@@ -58,7 +58,7 @@ def rentabilityInfo(cnpjs: Iterable[str], benchmarks: List[str] = None,
     endDate = str(endDate)
     list_to_search = []
     for cnpj in cnpjs:
-        id = search(cnpj)['ID']
+        id = search(cnpj)['ID'][0]
         list_to_search.append(id)
 
     id = _join(list_to_search) 
