@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 
 #Request from api
-import api
+from . import api
 
 pd.options.mode.chained_assignment = None
 
