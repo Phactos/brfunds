@@ -71,6 +71,7 @@ def rentabilityInfo(cnpjs: Iterable[str], benchmarks: List[str] = None,
                                 'endDate': endDate
                             })
     if response.ok:
+        print(response.json)
         return response.json()
     else:
         raise RequestError(response.status_code)
@@ -82,9 +83,14 @@ def volatilityInfo(cnpjs: Iterable[str], startDate: int = '', endDate: int = '')
     cnpj = _join(cnpjs)
     startDate = str(startDate)
     endDate = str(endDate)
+    list_to_search = []
+    for cnpj in cnpjs:
+        id = search(cnpj)['ID'][0]
+        list_to_search.append(id)   
 
-    cnpj = search(cnpjs[0])['ID'][0]
-    response = requests.get(f'{funds_url}/{cnpj}/volatility/chart', headers={
+    id = _join(list_to_search) 
+    
+    response = requests.get(f'{funds_url}/{id}/volatility/chart', headers={
                                 'Referer': 'https://comparadordefundos.com'}, params={
                                 'startDate': startDate,
                                 'endDate': endDate})
@@ -100,8 +106,14 @@ def shareholderInfo(cnpjs: Iterable[str], startDate: int = '', endDate: int = ''
     #cnpj = _join(cnjps)
     startDate = str(startDate)
     endDate = str(endDate)
-    cnpj = search(cnpjs[0])['ID'][0]
-    response = requests.get(f'{funds_url}/{cnpj}/amount-shareholders/chart?', headers={
+    list_to_search = []
+    for cnpj in cnpjs:
+        id = search(cnpj)['ID'][0]
+        list_to_search.append(id)   
+
+    id = _join(list_to_search) 
+
+    response = requests.get(f'{funds_url}/{id}/amount-shareholders/chart?', headers={
                                 'Referer': 'https://comparadordefundos.com'}, params={
                                 'startDate': startDate,
                                 'endDate': endDate})
@@ -117,9 +129,14 @@ def networthInfo(cnpjs: Iterable[str], startDate: int = '', endDate: int = '') -
     cnpj = _join(cnpjs)
     startDate = str(startDate)
     endDate = str(endDate)
-    cnpj = search(cnpjs[0])['ID'][0]
+    list_to_search = []
+    for cnpj in cnpjs:
+        id = search(cnpj)['ID'][0]
+        list_to_search.append(id)   
 
-    response = requests.get(f'{funds_url}/{cnpj}/net-worth/chart', headers={
+    id = _join(list_to_search) 
+
+    response = requests.get(f'{funds_url}/{id}/net-worth/chart', headers={
                                 'Referer': 'https://comparadordefundos.com'}, params={
                                 'startDate': startDate,
                                 'endDate': endDate})
@@ -135,9 +152,15 @@ def drawdownInfo(cnpjs: Iterable[str], startDate: int = '', endDate: int = ''):
     cnpj = _join(cnpjs)
     startDate = str(startDate)
     endDate = str(endDate)
-    cnpj = search(cnpjs[0])['ID'][0]
 
-    response = requests.get(f'{funds_url}/{cnpj}/drawdown/chart?', headers={
+    list_to_search = []
+    for cnpj in cnpjs:
+        id = search(cnpj)['ID'][0]
+        list_to_search.append(id)   
+
+    id = _join(list_to_search) 
+
+    response = requests.get(f'{funds_url}/{id}/drawdown/chart?', headers={
                                 'Referer': 'https://comparadordefundos.com'}, params={
                                 'startDate': startDate,
                                 'endDate': endDate})
