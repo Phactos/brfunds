@@ -71,7 +71,6 @@ def rentabilityInfo(cnpjs: Iterable[str], benchmarks: List[str] = None,
                                 'endDate': endDate
                             })
     if response.ok:
-        print(response.json)
         return response.json()
     else:
         raise RequestError(response.status_code)
